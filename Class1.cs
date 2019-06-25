@@ -21,8 +21,8 @@ class Entity
 class Order
 {
 
-    static List<Order> orders = new List<Order>();
-
+    internal static List<Order> orders = new List<Order>();
+    //internal static List<Order> opponentOrders = new List<Order>();
     enum Type
     {
         Wait,
@@ -39,14 +39,22 @@ class Order
     }
     internal Order(int source, int destination, int count)
     {
-
+        type = Type.Move;
+        this.source = source;
+        this.destination = destination;
+        this.count = count;
+    }
+    internal Troop CreateTroop()
+    {
+        if (type == Type.Wait) return null;
+        if (!Factory.factorys[source].isValidLink(destination)) return null;
     }
 }
 
 
 class Factory : Entity
 {
-    static Factory[] factorys;
+    internal static Factory[] factorys;
 
     internal int production = 0;
     internal int id = 0;
@@ -65,9 +73,17 @@ class Factory : Entity
     {
         link.Add((id, distance));
     }
+    internal bool isValidLink( int destination)
+    {
+        foreach (var item in link)
+        {
+            var destination = item.Item1;
+        }
+    }
     internal Entity simulate(int iteration)
     {
-        Troop[] toArrive = incoming.ToArray();
+        List<Troop> toArrive;
+        Order[] orders = Order.orders.ToArray();
         int allies = cyborgCount;
         int enemies = 0;
         for (int i = 0; i < iteration; i++)
@@ -83,6 +99,9 @@ class Factory : Entity
                     else enemies += item.cyborgCount;
                 }
             }
+            // order execution
+            Order order = orders[i];
+
             // production
             if (possessor != 0)
             {
